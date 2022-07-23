@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
+import { getFeed } from "./feed";
 
 const prisma = new PrismaClient();
 
@@ -10,53 +11,56 @@ app.use(express.json());
 app.use(express.raw({ type: "application/vnd.custom-type" }));
 app.use(express.text({ type: "text/html" }));
 
-app.get("/todos", async (req, res) => {
-    const todos = await prisma.todo.findMany({
-        orderBy: { createdAt: "desc" },
+app.get("/sessions", async (req, res) => {
+    const sessions = await prisma.session.findMany({
+        orderBy: { startDate: "desc" },
     });
 
-    res.json(todos);
+    res.json(sessions);
 });
 
-app.post("/todos", async (req, res) => {
-    const todo = await prisma.todo.create({
-        data: {
-            completed: false,
-            createdAt: new Date(),
-            text: req.body.text ?? "Empty todo",
-        },
+// app.post("/sessions", async (req, res) => {
+//     const todo = await prisma.session.create({
+//         data: {
+//             completed: false,
+//             createdAt: new Date(),
+//             text: req.body.text ?? "Empty todo",
+//         },
+//     });
+
+//     return res.json(todo);
+// });
+
+app.get("/rounds", async (req, res) => {
+    const rounds = await prisma.round.findMany({
+        orderBy: { sport: "asc" },
     });
 
-    return res.json(todo);
+    res.json(rounds);
 });
 
-app.get("/todos/:id", async (req, res) => {
-    const id = req.params.id;
-    const todo = await prisma.todo.findUnique({
-        where: { id },
-    });
+// app.post("/rounds", async (req, res) => {
+//     const todo = await prisma.round.create({
+//         data: {
+//             completed: false,
+//             createdAt: new Date(),
+//             text: req.body.text ?? "Empty todo",
+//         },
+//     });
 
-    return res.json(todo);
-});
+//     return res.json(todo);
+// });
 
-app.put("/todos/:id", async (req, res) => {
-    const id = req.params.id;
-    const todo = await prisma.todo.update({
-        where: { id },
-        data: req.body,
-    });
+// app.get("/feed", async (req, res, next) => {
+//     const sessions = await prisma.session.findMany({
+//         include: {
+//             round: true,
+//         },
+//     });
+//     const response = await getFeed(sessions);
 
-    return res.json(todo);
-});
-
-app.delete("/todos/:id", async (req, res) => {
-    const id = req.params.id;
-    await prisma.todo.delete({
-        where: { id },
-    });
-
-    return res.send({ status: "ok" });
-});
+//     return res.status(200).type("text/calendar").end(response);
+// });
 
 app.get("/", async (req, res) => {
     res.send(

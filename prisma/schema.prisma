@@ -10,9 +10,38 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Todo {
+enum Sport {
+  F1
+  FE
+  XE
+  INDY
+  W
+  WEC
+}
+
+model Session {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  text      String
-  completed Boolean
+  title     String
+  round     Round    @relation(fields: [roundId], references: [id])
+  roundId   String
+  startDate DateTime
+  endDate   DateTime
+}
+
+enum SessionType {
+  PRACTICE
+  QUALIFYING
+  RACE
+  SHAKEDOWN
+}
+
+model Round {
+  id       String    @id @default(uuid())
+  title    String    @unique
+  season   String
+  session  Session[]
+  sport    Sport
+  location String
+  link     String
 }
