@@ -51,16 +51,16 @@ app.get("/rounds", async (req, res) => {
 //     return res.json(todo);
 // });
 
-// app.get("/feed", async (req, res, next) => {
-//     const sessions = await prisma.session.findMany({
-//         include: {
-//             round: true,
-//         },
-//     });
-//     const response = await getFeed(sessions);
+app.get("/feed", async (req, res, next) => {
+    const sessions = await prisma.session.findMany({
+        include: {
+            round: true,
+        },
+    });
+    const response = await getFeed(sessions);
 
-//     return res.status(200).type("text/calendar").end(response);
-// });
+    return res.status(200).type("text/calendar").end(response);
+});
 
 app.get("/", async (req, res) => {
     res.send(
