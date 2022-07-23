@@ -36,7 +36,7 @@ enum SessionType {
   SHAKEDOWN
 }
 
-model Location {
+model Circuit {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   title     String   @unique
@@ -46,13 +46,13 @@ model Location {
 }
 
 model Round {
-  id         String    @id @default(uuid())
-  createdAt  DateTime  @default(now())
-  title      String    @unique
-  season     String
-  sessions   Session[]
-  sport      Sport
-  location   Location  @relation(fields: [locationId], references: [id])
-  locationId String
-  link       String
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  title     String    @unique
+  season    String
+  sessions  Session[]
+  sport     Sport
+  circuit   Circuit   @relation(fields: [circuitId], references: [id])
+  circuitId String
+  link      String
 }

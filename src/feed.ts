@@ -1,4 +1,4 @@
-import { Session, Round, Location } from "@prisma/client";
+import { Session, Round, Circuit } from "@prisma/client";
 import { DateTime } from "luxon";
 import type { DateArray, EventAttributes } from "ics";
 
@@ -13,8 +13,8 @@ const getCalDate = (date: Date): DateArray => {
     return [arr[0], arr[1], arr[2], arr[3], arr[4]];
 };
 
-type RoundWithLocation = Round & { location: Location };
-type SessionWithRound = Session & { round: RoundWithLocation };
+type RoundWithCircuit = Round & { circuit: Circuit };
+type SessionWithRound = Session & { round: RoundWithCircuit };
 export const getFeed = async (items: SessionWithRound[]) => {
     let events: EventAttributes[] = [];
 
@@ -36,7 +36,7 @@ export const getFeed = async (items: SessionWithRound[]) => {
             description: `It is time for the ${title}! Watch this race and its sessions via this link: ${session.round.link}`,
             // htmlContent:
             // 	'<!DOCTYPE html><html><body><p>This is<br>test<br>html code.</p></body></html>',
-            location: session.round.location.title,
+            location: session.round.circuit.title,
             url: session.round.link,
             // geo: { lat: 40.0095, lon: 105.2669 },
         });
