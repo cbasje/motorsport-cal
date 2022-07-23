@@ -29,8 +29,8 @@ app.post("/sessions", async (req, res) => {
             createdAt: new Date(),
             type: req.body.type ?? "PRACTICE",
             roundId: req.body.roundId,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate,
+            startDate: new Date(req.body.startDate),
+            endDate: new Date(req.body.endDate),
         },
     });
 
