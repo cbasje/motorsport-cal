@@ -2,6 +2,16 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+    const testLocation = await prisma.location.upsert({
+        where: { title: "Circuit Zandvoort" },
+        update: {},
+        create: {
+            title: "Circuit Zandvoort",
+            long: 52.388819444444444,
+            lat: 4.540922222222222,
+        },
+    });
+
     const testRound = await prisma.round.upsert({
         where: { title: "Test GP" },
         update: {},
@@ -9,7 +19,7 @@ async function main() {
             title: "Test GP",
             season: "2022",
             sport: "F1",
-            location: "Zandvoort",
+            locationId: testLocation.id,
             link: "",
         },
     });
