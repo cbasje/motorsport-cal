@@ -23,6 +23,8 @@ app.get("/sessions", async (req, res) => {
 app.post("/sessions", async (req, res) => {
     if (!req.body.roundId)
         return res.destroy(new Error("'roundId' not defined)"));
+    if (!req.body.startDate || !req.body.endDate)
+        return res.destroy(new Error("dates not defined)"));
 
     const session = await prisma.session.create({
         data: {
