@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
+import { DateTime } from "luxon";
 import { getFeed } from "./feed";
 
 const prisma = new PrismaClient();
@@ -19,17 +20,22 @@ app.get("/sessions", async (req, res) => {
     res.json(sessions);
 });
 
-// app.post("/sessions", async (req, res) => {
-//     const todo = await prisma.session.create({
-//         data: {
-//             completed: false,
-//             createdAt: new Date(),
-//             text: req.body.text ?? "Empty todo",
-//         },
-//     });
+app.post("/sessions", async (req, res) => {
+    if (!req.body.roundId)
+        return res.destroy(new Error("'roundId' not defined)"));
 
-//     return res.json(todo);
-// });
+    const session = await prisma.session.create({
+        data: {
+            createdAt: new Date(),
+            type: req.body.type ?? "PRACTICE",
+            roundId: req.body.roundId,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+        },
+    });
+
+    return res.json(session);
+});
 
 app.get("/rounds", async (req, res) => {
     const rounds = await prisma.round.findMany({
@@ -44,17 +50,20 @@ app.get("/rounds", async (req, res) => {
     res.json(rounds);
 });
 
-// app.post("/rounds", async (req, res) => {
-//     const todo = await prisma.round.create({
-//         data: {
-//             completed: false,
-//             createdAt: new Date(),
-//             text: req.body.text ?? "Empty todo",
-//         },
-//     });
+app.post("/rounds", async (req, res) => {
+    const round = await prisma.round.create({
+        data: {
+            createdAt: new Date(),
+            title: req.body.title ?? "New round",
+            season: req.body.season ?? DateTime.now().year.toString(),
+            sport: req.body.sport ?? "F1",
+            locationId: req.body.locationId,
+            link: req.body.link,
+        },
+    });
 
-//     return res.json(todo);
-// });
+    return res.json(round);
+});
 
 app.get("/locations", async (req, res) => {
     const locations = await prisma.location.findMany({

@@ -20,10 +20,10 @@ enum Sport {
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  title     String
-  round     Round    @relation(fields: [roundId], references: [id])
+  id        String      @id @default(uuid())
+  createdAt DateTime    @default(now())
+  type      SessionType
+  round     Round       @relation(fields: [roundId], references: [id])
   roundId   String
   startDate DateTime
   endDate   DateTime

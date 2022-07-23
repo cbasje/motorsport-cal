@@ -23,14 +23,17 @@ export const getFeed = async (items: SessionWithRound[]) => {
             return;
         }
 
+        const title = `${session.round.sport} ${session.round.title}${
+            session.type ? " - " + session.type : ""
+        }`;
         events.push({
             calName: TITLE,
             productId: PRODUCT,
-            title: session.title,
+            title,
             startInputType: "utc",
             start: getCalDate(session.startDate),
             end: getCalDate(session.endDate),
-            description: `It is time for the ${session.title}! Watch this race and its sessions via this link: ${session.round.link}`,
+            description: `It is time for the ${title}! Watch this race and its sessions via this link: ${session.round.link}`,
             // htmlContent:
             // 	'<!DOCTYPE html><html><body><p>This is<br>test<br>html code.</p></body></html>',
             location: session.round.location.title,

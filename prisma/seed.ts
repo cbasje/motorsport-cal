@@ -26,7 +26,7 @@ async function main() {
 
     const testSession = await prisma.session.create({
         data: {
-            title: "Test",
+            type: "PRACTICE",
             roundId: testRound.id,
             startDate: new Date(),
             endDate: new Date(),
