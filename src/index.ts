@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import express from "express";
 import { DateTime } from "luxon";
 import { getFeed } from "./feed";
+import { createEvents } from "ics";
 
 const prisma = new PrismaClient();
 
@@ -9,8 +10,6 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(express.json());
-app.use(express.raw({ type: "application/vnd.custom-type" }));
-app.use(express.text({ type: "text/html" }));
 
 app.get("/sessions", async (req, res) => {
     const sessions = await prisma.session.findMany({
@@ -136,28 +135,38 @@ app.get("/feed", async (req, res, next) => {
 
     if (!sessions.length) throw new Error("No 'session' found");
 
-    const response = await getFeed(sessions);
+    const events = await getFeed(sessions);
+    createEvents(events, (error: Error | undefined, value: string) => {
+        if (error) {
+            console.error(error.message);
+            throw error;
+        }
 
-    return res.status(200).type("text/calendar").end(response);
+        return res.type("text/calendar").send(value);
+    });
 });
 
 app.get("/", async (req, res) => {
-    res.send(
+    return res.type("text/html").send(
         `
   <h1>Motorsport Calendar REST API</h1>
   <h2>Available Routes</h2>
   <table>
     <tr>
-      <td>GET, POST</td>
+      <td>GET, POST, DELETE</td>
       <td><a href="/circuits">/circuits</a></td>
     </tr>
     <tr>
-      <td>GET, POST</td>
+      <td>GET, POST, DELETE</td>
       <td><a href="/rounds">/rounds</a></td>
     </tr>
     <tr>
-      <td>GET, POST</td>
+      <td>GET, POST, DELETE</td>
       <td><a href="/sessions">/sessions</a></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><a href="/feed">/feed</a></td>
     </tr>
   </table>
   `.trim()

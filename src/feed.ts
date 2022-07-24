@@ -1,6 +1,7 @@
 import { Session, Round, Circuit } from "@prisma/client";
 import { DateTime } from "luxon";
 import type { DateArray, EventAttributes } from "ics";
+import ics from "ics";
 
 const TITLE = "Motorsport Calendar";
 const PRODUCT = "benjamiin..";
@@ -15,7 +16,9 @@ const getCalDate = (date: Date): DateArray => {
 
 type RoundWithCircuit = Round & { circuit: Circuit };
 type SessionWithRound = Session & { round: RoundWithCircuit };
-export const getFeed = async (items: SessionWithRound[]) => {
+export const getFeed = async (
+    items: SessionWithRound[]
+): Promise<EventAttributes[]> => {
     let events: EventAttributes[] = [];
 
     items.forEach((session) => {
@@ -45,17 +48,5 @@ export const getFeed = async (items: SessionWithRound[]) => {
         });
     });
 
-    const response = await new Promise((resolve, reject) => {
-        const ics = require("ics");
-        ics.createEvents(events, (error: any, value: unknown) => {
-            if (error) {
-                console.log(error);
-                reject(error);
-            }
-
-            resolve(value);
-        });
-    });
-
-    return response;
+    return events;
 };
