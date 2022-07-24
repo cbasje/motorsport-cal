@@ -23,9 +23,9 @@ export const getFeed = async (items: SessionWithRound[]) => {
             return;
         }
 
-        const title = `${session.round.sport} ${session.round.title}${
-            session.type ? " - " + session.type : ""
-        }`;
+        const type = session.type ? ` - ${session.type}` : "";
+        const number = session.number !== 0 ? ` ${session.number}` : "";
+        const title = `${session.round.sport} ${session.round.title}${type}${number}`;
         events.push({
             calName: TITLE,
             productId: PRODUCT,

@@ -29,21 +29,28 @@ app.post("/sessions", async (req, res) => {
         const session = await prisma.session.create({
             data: {
                 createdAt: new Date(),
-                type: req.body.type ?? "PRACTICE",
-                roundId: req.body.roundId,
+                type: req.body.type ?? "SHAKEDOWN",
+                number: req.body.number ?? 0,
+                round: {
+                    connect: {
+                        id: req.body.roundId,
+                    },
+                },
                 startDate: new Date(req.body.startDate),
                 endDate: new Date(req.body.endDate),
             },
         });
 
         return res.json(session);
-    } catch (error) {
-        throw new Error("Something went wrong creating 'session'");
+    } catch (error: any) {
+        throw new Error(
+            "Something went wrong creating 'session': " + error.message
+        );
     }
 });
 
 app.delete("/sessions", async (req, res) => {
-    const sessions = await prisma.session.deleteMany();
+    const sessions = await prisma.session.deleteMany({});
     return res.end();
 });
 
@@ -51,6 +58,7 @@ app.get("/rounds", async (req, res) => {
     const rounds = await prisma.round.findMany({
         orderBy: { sport: "asc" },
         include: {
+            sessions: true,
             _count: {
                 select: { sessions: true },
             },
@@ -67,7 +75,11 @@ app.post("/rounds", async (req, res) => {
             title: req.body.title ?? "New round",
             season: req.body.season ?? DateTime.now().year.toString(),
             sport: req.body.sport ?? "F1",
-            circuitId: req.body.circuitId,
+            circuit: {
+                connect: {
+                    id: req.body.circuitId,
+                },
+            },
             link: req.body.link,
         },
     });
@@ -76,7 +88,7 @@ app.post("/rounds", async (req, res) => {
 });
 
 app.delete("/rounds", async (req, res) => {
-    const rounds = await prisma.round.deleteMany();
+    const rounds = await prisma.round.deleteMany({});
     return res.end();
 });
 
@@ -84,6 +96,7 @@ app.get("/circuits", async (req, res) => {
     const circuits = await prisma.circuit.findMany({
         orderBy: { createdAt: "asc" },
         include: {
+            rounds: true,
             _count: {
                 select: { rounds: true },
             },
@@ -94,7 +107,7 @@ app.get("/circuits", async (req, res) => {
 });
 
 app.delete("/circuits", async (req, res) => {
-    const circuits = await prisma.circuit.deleteMany();
+    const circuits = await prisma.circuit.deleteMany({});
     return res.end();
 });
 

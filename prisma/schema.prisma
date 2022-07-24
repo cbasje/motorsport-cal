@@ -23,6 +23,7 @@ model Session {
   id        String      @id @default(uuid())
   createdAt DateTime    @default(now())
   type      SessionType
+  number    Int         @default(0)
   round     Round       @relation(fields: [roundId], references: [id])
   roundId   String
   startDate DateTime
