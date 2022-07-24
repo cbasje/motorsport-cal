@@ -23,8 +23,8 @@ model Session {
   id        String      @id @default(uuid())
   createdAt DateTime    @default(now())
   type      SessionType
-  number    Int         @default(0)
-  round     Round       @relation(fields: [roundId], references: [id])
+  number    Int?        @default(0)
+  round     Round       @relation(fields: [roundId], references: [id], onDelete: Cascade)
   roundId   String
   startDate DateTime
   endDate   DateTime
@@ -41,8 +41,8 @@ model Circuit {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   title     String   @unique
-  long      Decimal
-  lat       Decimal
+  long      Decimal? @default(0)
+  lat       Decimal? @default(0)
   rounds    Round[]
 }
 
@@ -53,7 +53,7 @@ model Round {
   season    String
   sessions  Session[]
   sport     Sport
-  circuit   Circuit   @relation(fields: [circuitId], references: [id])
+  circuit   Circuit   @relation(fields: [circuitId], references: [id], onDelete: Cascade)
   circuitId String
-  link      String
+  link      String?
 }

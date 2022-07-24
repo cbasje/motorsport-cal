@@ -33,11 +33,14 @@ export const getFeed = async (items: SessionWithRound[]) => {
             startInputType: "utc",
             start: getCalDate(session.startDate),
             end: getCalDate(session.endDate),
-            description: `It is time for the ${title}! Watch this race and its sessions via this link: ${session.round.link}`,
+            description: `It is time for the ${title}!${
+                session.round.link &&
+                ` Watch this race and its sessions via this link: ${session.round.link}`
+            }`,
             // htmlContent:
             // 	'<!DOCTYPE html><html><body><p>This is<br>test<br>html code.</p></body></html>',
             location: session.round.circuit.title,
-            url: session.round.link,
+            url: session.round.link ?? "",
             // geo: { lat: 40.0095, lon: 105.2669 },
         });
     });
