@@ -33,7 +33,7 @@ async function main() {
         },
     });
 
-    console.log({ testRound, testSession });
+    console.log({ testCircuit, testRound, testSession });
 }
 
 main()

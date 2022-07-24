@@ -6,7 +6,7 @@ import { getFeed } from "./feed";
 const prisma = new PrismaClient();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(express.raw({ type: "application/vnd.custom-type" }));
@@ -17,26 +17,29 @@ app.get("/sessions", async (req, res) => {
         orderBy: { startDate: "desc" },
     });
 
-    res.json(sessions);
+    return res.json(sessions);
 });
 
 app.post("/sessions", async (req, res) => {
-    if (!req.body.roundId)
-        return res.destroy(new Error("'roundId' not defined)"));
+    if (!req.body.roundId) throw new Error("'roundId' not defined)");
     if (!req.body.startDate || !req.body.endDate)
-        return res.destroy(new Error("dates not defined)"));
+        throw new Error("dates not defined)");
 
-    const session = await prisma.session.create({
-        data: {
-            createdAt: new Date(),
-            type: req.body.type ?? "PRACTICE",
-            roundId: req.body.roundId,
-            startDate: new Date(req.body.startDate),
-            endDate: new Date(req.body.endDate),
-        },
-    });
+    try {
+        const session = await prisma.session.create({
+            data: {
+                createdAt: new Date(),
+                type: req.body.type ?? "PRACTICE",
+                roundId: req.body.roundId,
+                startDate: new Date(req.body.startDate),
+                endDate: new Date(req.body.endDate),
+            },
+        });
 
-    return res.json(session);
+        return res.json(session);
+    } catch (error) {
+        throw new Error("Something went wrong creating 'session'");
+    }
 });
 
 app.delete("/sessions", async (req, res) => {
@@ -54,7 +57,7 @@ app.get("/rounds", async (req, res) => {
         },
     });
 
-    res.json(rounds);
+    return res.json(rounds);
 });
 
 app.post("/rounds", async (req, res) => {
@@ -87,7 +90,7 @@ app.get("/circuits", async (req, res) => {
         },
     });
 
-    res.json(circuits);
+    return res.json(circuits);
 });
 
 app.delete("/circuits", async (req, res) => {
@@ -117,6 +120,9 @@ app.get("/feed", async (req, res, next) => {
             },
         },
     });
+
+    if (!sessions.length) throw new Error("No 'session' found");
+
     const response = await getFeed(sessions);
 
     return res.status(200).type("text/calendar").end(response);
