@@ -68,10 +68,12 @@ app.get("/rounds", async (req, res) => {
 });
 
 app.post("/rounds", async (req, res) => {
+    if (!req.body.title) throw new Error("'title' not defined)");
+
     const round = await prisma.round.create({
         data: {
             createdAt: new Date(),
-            title: req.body.title ?? "New round",
+            title: req.body.title,
             season: req.body.season ?? DateTime.now().year.toString(),
             sport: req.body.sport ?? "F1",
             circuit: {
