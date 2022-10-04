@@ -1,13 +1,47 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model Circuit {
+  id              String   @id @default(uuid())
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  title           String   @unique
+  wikipediaPageId Int?
+  lon             Float?
+  lat             Float?
+  rounds          Round[]
+}
+
+model Round {
+  id         String    @id @default(uuid())
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  title      String
+  season     String    @db.VarChar
+  link       String?
+  circuitId  String
+  sport      Sport
+  circuit    Circuit   @relation(fields: [circuitId], references: [id])
+  sessions   Session[]
+
+  @@unique([title, sport, season], name: "uniqueRoundPerSportSeason")
+}
+
+model Session {
+  id         String      @id @default(uuid())
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  number     Int         @default(0)
+  startDate  DateTime    @db.Timestamptz(6)
+  endDate    DateTime    @db.Timestamptz(6)
+  roundId    String
+  type       SessionType
+  round      Round       @relation(fields: [roundId], references: [id])
+
+  @@unique([type, number, roundId], name: "uniqueSessionPerRoundId")
 }
 
 enum Sport {
@@ -19,41 +53,10 @@ enum Sport {
   WEC
 }
 
-model Session {
-  id        String      @id @default(uuid())
-  createdAt DateTime    @default(now())
-  type      SessionType
-  number    Int?        @default(0)
-  round     Round       @relation(fields: [roundId], references: [id], onDelete: Cascade)
-  roundId   String
-  startDate DateTime
-  endDate   DateTime
-}
-
 enum SessionType {
   PRACTICE
   QUALIFYING
   RACE
   SHAKEDOWN
-}
-
-model Circuit {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  title     String   @unique
-  long      Decimal? @default(0)
-  lat       Decimal? @default(0)
-  rounds    Round[]
-}
-
-model Round {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now())
-  title     String    @unique
-  season    String
-  sessions  Session[]
-  sport     Sport
-  circuit   Circuit   @relation(fields: [circuitId], references: [id], onDelete: Cascade)
-  circuitId String
-  link      String?
+  SPRINT
 }

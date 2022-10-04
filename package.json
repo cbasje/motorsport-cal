@@ -2,35 +2,44 @@
     "name": "motorsport-calendar",
     "version": "1.0.0",
     "description": "A calendar for motorsport",
-    "main": "index.js",
     "author": "Sebastiaan Benjamins",
     "license": "MIT",
+    "private": true,
+    "main": "dist/index.js",
+    "module": "dist/cron-service.esm.js",
+    "typings": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "src"
+    ],
     "scripts": {
-        "dev": "nodemon src/index.ts",
-        "build": "yarn migrate:deploy && tsc",
-        "start": "node dist/src/index.js",
+        "build": "dts build --transpileOnly",
+        "lint": "dts lint",
+        "dev": "dts watch",
         "migrate:dev": "prisma migrate dev",
         "migrate:deploy": "prisma migrate deploy",
         "migrate:status": "prisma migrate status",
         "generate": "prisma generate"
     },
     "dependencies": {
-        "@prisma/client": "^4.1.0",
-        "express": "^4.17.1",
-        "ics": "^2.37.0",
-        "luxon": "^3.0.1"
+        "@prisma/client": "^4.4.0",
+        "axios": "^0.27.2",
+        "cheerio": "^1.0.0-rc.12",
+        "express": "^4.18.1",
+        "ics": "^2.40.0",
+        "luxon": "^3.0.4",
+        "node-cron": "^3.0.2",
+        "ufo": "^0.8.5"
     },
     "devDependencies": {
-        "@types/body-parser": "^1.19.2",
-        "@types/express": "^4.17.13",
-        "@types/luxon": "^3.0.0",
-        "@types/node": "^18.0.6",
-        "nodemon": "^2.0.19",
-        "prisma": "^4.1.0",
-        "ts-node": "^10.9.1",
-        "typescript": "^4.7.4"
-    },
-    "prisma": {
-        "seed": "ts-node prisma/seed.ts"
+        "@tsconfig/recommended": "^1.0.1",
+        "@types/express": "^4.17.14",
+        "@types/luxon": "^3.0.1",
+        "@types/node": "^18.8.0",
+        "@types/node-cron": "^3.0.4",
+        "dts-cli": "^1.6.0",
+        "prisma": "4.4.0",
+        "tslib": "^2.4.0",
+        "typescript": "^4.8.4"
     }
 }

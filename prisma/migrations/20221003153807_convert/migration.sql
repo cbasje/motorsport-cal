@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - You are about to drop the `Todo` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Person` table. If the table is not empty, all the data it contains will be lost.
 
 */
 -- CreateEnum
@@ -11,13 +11,14 @@ CREATE TYPE "Sport" AS ENUM ('F1', 'FE', 'XE', 'INDY', 'W', 'WEC');
 CREATE TYPE "SessionType" AS ENUM ('PRACTICE', 'QUALIFYING', 'RACE', 'SHAKEDOWN');
 
 -- DropTable
-DROP TABLE "Todo";
+DROP TABLE "Person";
 
 -- CreateTable
 CREATE TABLE "Session" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "title" TEXT NOT NULL,
+    "type" "SessionType" NOT NULL,
+    "number" INTEGER DEFAULT 0,
     "roundId" TEXT NOT NULL,
     "startDate" TIMESTAMP(3) NOT NULL,
     "endDate" TIMESTAMP(3) NOT NULL,
@@ -26,35 +27,37 @@ CREATE TABLE "Session" (
 );
 
 -- CreateTable
-CREATE TABLE "Location" (
+CREATE TABLE "Circuit" (
     "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" TEXT NOT NULL,
-    "long" DECIMAL(65,30) NOT NULL,
-    "lat" DECIMAL(65,30) NOT NULL,
+    "long" DECIMAL(65,30) DEFAULT 0,
+    "lat" DECIMAL(65,30) DEFAULT 0,
 
-    CONSTRAINT "Location_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Circuit_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Round" (
     "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" TEXT NOT NULL,
     "season" TEXT NOT NULL,
     "sport" "Sport" NOT NULL,
-    "link" TEXT NOT NULL,
-    "locationId" TEXT NOT NULL,
+    "circuitId" TEXT NOT NULL,
+    "link" TEXT,
 
     CONSTRAINT "Round_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Location_title_key" ON "Location"("title");
+CREATE UNIQUE INDEX "Circuit_title_key" ON "Circuit"("title");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Round_title_key" ON "Round"("title");
 
 -- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_roundId_fkey" FOREIGN KEY ("roundId") REFERENCES "Round"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Session" ADD CONSTRAINT "Session_roundId_fkey" FOREIGN KEY ("roundId") REFERENCES "Round"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Round" ADD CONSTRAINT "Round_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "Location"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Round" ADD CONSTRAINT "Round_circuitId_fkey" FOREIGN KEY ("circuitId") REFERENCES "Circuit"("id") ON DELETE CASCADE ON UPDATE CASCADE;

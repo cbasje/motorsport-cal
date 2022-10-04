@@ -1,148 +1,31 @@
-import { PrismaClient, Round, Session } from "@prisma/client";
 import express from "express";
-import { DateTime } from "luxon";
-import { getFeed } from "./feed";
-import { createEvents } from "ics";
+import cron from "node-cron";
 
-const prisma = new PrismaClient();
+import controllers from "./lib/controllers";
+import { main as scrape } from "./lib/scraper";
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
+const location = process.env.FLY_APP_NAME
+    ? `${process.env.FLY_APP_NAME}.fly.dev`
+    : `localhost:${port}`;
 
 app.use(express.json());
 
-app.get("/sessions", async (req, res) => {
-    const sessions = await prisma.session.findMany({
-        orderBy: { startDate: "desc" },
-    });
+app.get("/sessions", controllers.sessions.get);
+app.delete("/sessions", controllers.sessions.delete);
+app.post("/sessions", controllers.sessions.post);
 
-    return res.json(sessions);
-});
+app.get("/rounds", controllers.rounds.get);
+app.delete("/rounds", controllers.rounds.delete);
+app.post("/rounds", controllers.rounds.post);
 
-app.post("/sessions", async (req, res) => {
-    if (!req.body.data) throw new Error("'data' not defined)");
+app.get("/circuits", controllers.circuit.get);
+app.patch("/circuits", controllers.circuit.patch);
+app.delete("/circuits", controllers.circuit.delete);
+app.post("/circuits", controllers.circuit.post);
 
-    const data = req.body.data as Session[];
-    const sessions = await prisma.session.createMany({
-        data: data.map((s) => ({
-            createdAt: new Date(),
-            type: s.type ?? "SHAKEDOWN",
-            number: s.number ?? 0,
-            roundId: s.roundId,
-            round: {
-                connect: {
-                    id: s.roundId,
-                },
-            },
-            startDate: new Date(s.startDate),
-            endDate: new Date(s.endDate),
-        })),
-    });
-
-    return res.json(sessions);
-});
-
-app.delete("/sessions", async (req, res) => {
-    const sessions = await prisma.session.deleteMany({});
-    return res.end();
-});
-
-app.get("/rounds", async (req, res) => {
-    const rounds = await prisma.round.findMany({
-        orderBy: { sport: "asc" },
-        include: {
-            sessions: true,
-            _count: {
-                select: { sessions: true },
-            },
-        },
-    });
-
-    return res.json(rounds);
-});
-
-app.post("/rounds", async (req, res) => {
-    if (!req.body.data) throw new Error("'data' not defined)");
-
-    const data = req.body.data as Exclude<Round, "createdAt">[];
-    const rounds = await prisma.round.createMany({
-        data: data.map((r) => ({
-            createdAt: new Date(),
-            title: r.title,
-            season: r.season ?? DateTime.now().year.toString(),
-            sport: r.sport ?? "F1",
-            circuitId: r.circuitId,
-            circuit: {
-                connect: {
-                    id: r.circuitId,
-                },
-            },
-            link: r.link,
-        })),
-    });
-
-    return res.json(rounds);
-});
-
-app.delete("/rounds", async (req, res) => {
-    const rounds = await prisma.round.deleteMany({});
-    return res.end();
-});
-
-app.get("/circuits", async (req, res) => {
-    const circuits = await prisma.circuit.findMany({
-        orderBy: { createdAt: "asc" },
-        include: {
-            rounds: true,
-            _count: {
-                select: { rounds: true },
-            },
-        },
-    });
-
-    return res.json(circuits);
-});
-
-app.delete("/circuits", async (req, res) => {
-    const circuits = await prisma.circuit.deleteMany({});
-    return res.end();
-});
-
-// app.post("/circuits", async (req, res) => {
-//     const todo = await prisma.round.create({
-//         data: {
-//             completed: false,
-//             createdAt: new Date(),
-//             text: req.body.text ?? "Empty todo",
-//         },
-//     });
-
-//     return res.json(todo);
-// });
-
-app.get("/feed", async (req, res, next) => {
-    const sessions = await prisma.session.findMany({
-        include: {
-            round: {
-                include: {
-                    circuit: true,
-                },
-            },
-        },
-    });
-
-    if (!sessions.length) throw new Error("No 'session' found");
-
-    const events = await getFeed(sessions);
-    createEvents(events, (error: Error | undefined, value: string) => {
-        if (error) {
-            console.error(error.message);
-            throw error;
-        }
-
-        return res.type("text/calendar").send(value);
-    });
-});
+app.get("/feed", controllers.feed.get);
 
 app.get("/", async (req, res) => {
     return res.type("text/html").send(
@@ -171,6 +54,14 @@ app.get("/", async (req, res) => {
     );
 });
 
+// MARK: Start express app
 app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
+    console.log(`App listening at http://${location}`);
+});
+
+// MARK: Schedule scraper
+scrape();
+cron.schedule("0 0 * * FRI,SAT,SUN", scrape, {
+    scheduled: true,
+    timezone: "Europe/Amsterdam",
 });
