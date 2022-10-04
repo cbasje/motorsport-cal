@@ -1,0 +1,16 @@
+{
+    "tasks": [
+        {
+            "label": "🎈  Proxy database",
+            "type": "shell",
+            "command": "flyctl proxy 5432 --app polished-mountain-5025-db",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "group": "develop"
+            },
+            "runOptions": { "runOn": "folderOpen" }
+        }
+    ]
+}

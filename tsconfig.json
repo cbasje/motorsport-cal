@@ -1,13 +1,12 @@
 {
+    "extends": "@tsconfig/recommended/tsconfig.json",
+    "include": ["src", "types", "/**/*.ts"],
+    "exclude": ["node_modules"],
     "compilerOptions": {
-        "outDir": "dist",
-
-        "incremental": true,
-        "target": "es6",
-        "module": "commonjs",
-        "strict": true,
+        "module": "esnext",
+        "moduleResolution": "node",
         "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "paths": { "~/*": ["./src/*"] },
+        "rootDir": "./src"
     }
 }

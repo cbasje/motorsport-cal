@@ -1,7 +1,6 @@
-import { Session, Round, Circuit } from "@prisma/client";
-import { DateTime } from "luxon";
+import { Circuit, Round, Session } from "@prisma/client";
 import type { DateArray, EventAttributes } from "ics";
-import ics from "ics";
+import { DateTime } from "luxon";
 
 const TITLE = "Motorsport Calendar";
 const PRODUCT = "benjamiin..";
