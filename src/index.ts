@@ -60,7 +60,7 @@ app.listen(port, () => {
 });
 
 // MARK: Schedule scraper
-scrape();
+if (process.env.NODE_ENV != "development") scrape();
 cron.schedule("0 0 * * FRI,SAT,SUN", scrape, {
     scheduled: true,
     timezone: "Europe/Amsterdam",

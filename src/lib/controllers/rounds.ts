@@ -6,7 +6,9 @@ const getController = async (req: Request, res: Response) => {
     const rounds = await prisma.round.findMany({
         orderBy: { sport: "asc" },
         include: {
-            sessions: true,
+            sessions: {
+                orderBy: { startDate: "asc" },
+            },
             _count: {
                 select: { sessions: true },
             },
